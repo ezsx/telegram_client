@@ -11,6 +11,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=postgres
       - DB_PORT=5432
+    volumes:
+      - .:/app
     depends_on:
       - postgres
 

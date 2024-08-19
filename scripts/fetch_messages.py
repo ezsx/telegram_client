@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
 import psycopg2
+from datetime import timedelta, timezone, tzinfo
+from zoneinfo import ZoneInfo
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -48,23 +50,22 @@ def get_last_message_timestamp():
     )
     cursor = conn.cursor()
 
-    cursor.execute("SELECT MAX(published_at) FROM news")
+    cursor.execute("SELECT MAX(published_at)::timestamptz FROM news")
     last_timestamp = cursor.fetchone()[0]
 
     cursor.close()
     conn.close()
-    return last_timestamp or datetime.min  # Если нет данных, вернем минимальную дату
-
-
-from datetime import datetime, timedelta, timezone
+    return last_timestamp or datetime(2024,8,19,20,12,12,0, tzinfo=timezone.utc)  # Если нет данных, вернем минимальную дату
 
 # Пример приведения since к offset-aware
-since = datetime.now(timezone.utc) - timedelta(hours=since_hours)
-
 async def fetch_messages(client, channel, since):
     """Функция для сбора сообщений из указанного канала после заданного времени"""
+    since = get_last_message_timestamp()
+
     channel_messages = []
     async for message in client.iter_messages(channel):
+        print(message.date)
+        print(since)
         if message.date <= since:
             break
         channel_info = await client.get_entity(channel)
