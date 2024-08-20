@@ -64,8 +64,6 @@ async def fetch_messages(client, channel, since):
 
     channel_messages = []
     async for message in client.iter_messages(channel):
-        print(message.date)
-        print(since)
         if message.date <= since:
             break
         channel_info = await client.get_entity(channel)
